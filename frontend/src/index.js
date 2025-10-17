@@ -1,14 +1,23 @@
 export default {
   async fetch(request, env) {
-    // Serve static assets from Next.js build
     const url = new URL(request.url);
 
-    // Try to serve from static assets
-    if (url.pathname.startsWith('/_next/')) {
-      return env.ASSETS.fetch(request);
-    }
+    try {
+      // Try to fetch the exact path from assets
+      const response = await env.ASSETS.fetch(request);
 
-    // For all other routes, serve index.html (client-side routing)
-    return env.ASSETS.fetch(new URL('/index.html', request.url));
+      // If we get a 404, try to serve index.html for client-side routing
+      if (response.status === 404) {
+        // For HTML routes, serve index.html
+        if (!url.pathname.includes('.') && !url.pathname.startsWith('/_next/')) {
+          return env.ASSETS.fetch(new URL('/index.html', request.url));
+        }
+      }
+
+      return response;
+    } catch (error) {
+      // Fallback to index.html
+      return env.ASSETS.fetch(new URL('/index.html', request.url));
+    }
   }
 };

@@ -4,6 +4,7 @@ compatibility_date = "2025-01-17"
 account_id = "d371c76d7e486fbae757ae73a6349bc6"
 
 # Static assets configuration for Next.js
+# Serve the entire build output
 [assets]
-directory = ".next/static"
+directory = "out"
 binding = "ASSETS"
