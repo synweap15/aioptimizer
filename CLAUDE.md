@@ -4,17 +4,30 @@ This document provides guidance for using Claude Code (Anthropic's AI coding ass
 
 ## Project Overview
 
-This is a full-stack monorepo with:
+**AI Optimizer** is an SEO investigation and optimization platform powered by AI agents.
+
+### Purpose
+The platform autonomously investigates websites, researches competitors, and provides actionable SEO recommendations. It uses OpenAI's Agents SDK to enable agents to:
+- Fetch and analyze webpage content
+- Query Google for keyword research
+- Compare competitor strategies
+- Generate prioritized optimization recommendations
+
+### Tech Stack
 - **Backend**: FastAPI async with SQLAlchemy 2.0, OpenAI Agents SDK
 - **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, Zustand
+- **External APIs**: SerpAPI (Google search), OpenAI (GPT-4o agents)
+- **Deployment**: Cloudflare Workers (frontend), VPS/Docker (backend)
 
 ## Architecture Patterns
 
 ### Backend Architecture
 
-**Layered Architecture:**
+**Layered Architecture with Agent Integration:**
 ```
-Routers → Services → Models → Database
+Routers → Services → OpenAI Agents → External APIs
+              ↓
+           Models → Database
 ```
 
 **Key Patterns:**
@@ -22,6 +35,8 @@ Routers → Services → Models → Database
 2. **Async/Await**: All database operations and route handlers are async
 3. **SQLAlchemy 2.0**: Uses `Mapped` and `mapped_column` for type safety
 4. **Service Layer**: Business logic separated from route handlers
+5. **Multi-Agent Orchestration**: OpenAI Agents SDK for autonomous workflows
+6. **SSE Streaming**: Real-time progress updates via Server-Sent Events
 
 ### Example Service with DI
 
@@ -197,15 +212,60 @@ Use: alembic revision --autogenerate -m "description"
 
 ```
 Create an OpenAI Agent for [use case]:
-- Create agent service in backend/services/[name]_agent_service.py
+- Create agent service in backend/services/[name]_service.py
 - Include tools: [list of tools]
 - Add router endpoints for running the agent
 - Use async/await patterns
+- Implement SSE streaming for real-time updates
 
 See AGENTS.md for reference patterns.
+See InvestigationService for complete agent implementation example.
 ```
 
 ## Project-Specific Context
+
+### SEO Investigation Agent System
+
+The core feature uses a multi-agent system (`backend/services/investigation_service.py`):
+
+**1. Web Investigator Agent** - Has tools to:
+- `search_google(query, location)` - Query Google via SerpAPI
+- `fetch_url_content(url)` - Fetch and parse webpage content
+
+**2. SEO Analyzer Agent**
+- Analyzes investigation data
+- Identifies SEO opportunities
+
+**3. SEO Optimizer Agent**
+- Generates actionable recommendations
+- Can hand off to Analyzer if needed
+
+**API Endpoint:**
+```python
+POST /investigate
+{
+  "url": "https://example.com",
+  "keywords": ["seo", "optimization"],
+  "location": "United States"
+}
+
+# Returns SSE stream with real-time progress
+```
+
+**Tool Pattern for Agents:**
+```python
+def search_google(query: str, location: str = "United States") -> str:
+    """Tool function for agent - must return string (JSON)"""
+    # Tool logic here
+    return json.dumps(results)
+
+agent = Agent(
+    name="Investigator",
+    instructions="...",
+    tools=[search_google, fetch_url_content],
+    model="gpt-4o",
+)
+```
 
 ### Database Configuration
 
@@ -307,10 +367,16 @@ return UserResponse.from_orm(user)
 
 Backend requires these in `.env`:
 ```bash
+# Database
 DATABASE_HOST=localhost
 DATABASE_PASSWORD=your_password
 DATABASE_NAME=aioptimizer
-OPENAI_API_KEY=sk-...
+
+# AI & External APIs (REQUIRED for investigation)
+OPENAI_API_KEY=sk-...              # OpenAI API for agents
+SERPAPI_API_KEY=...                # SerpAPI for Google search
+
+# Security
 SECRET_KEY=your-secret-key
 ```
 
@@ -433,10 +499,37 @@ docker-compose down                    # Stop services
 ## Tips for Efficient Development
 
 1. **Use the Service Layer**: Don't put business logic in routers
-2. **Follow the Patterns**: Look at existing code (User model/service/router) as examples
+2. **Follow the Patterns**:
+   - User CRUD: `UserService` pattern
+   - Agent workflows: `InvestigationService` pattern
+   - SSE streaming: `POST /investigate` pattern
 3. **Test as You Go**: Write tests for new features
 4. **Commit Often**: Small, focused commits with descriptive messages
 5. **Use Type Hints**: They help catch errors early
+6. **Agent Tools**: Return JSON strings, keep functions synchronous (use executor if needed)
+
+## Project Goals & Assumptions
+
+### Core Goal
+Build an AI-powered SEO investigation platform where agents autonomously:
+1. Fetch and analyze target website content
+2. Research Google rankings and competitors
+3. Generate actionable SEO recommendations
+4. Stream real-time progress to users
+
+### Key Assumptions
+- Agents have web research capabilities (Google search, webpage fetching)
+- Users want real-time progress updates (SSE streaming)
+- Investigations are compute-intensive (async throughout)
+- Results should be actionable and prioritized by impact
+- System should be extensible (easy to add more agent tools)
+
+### Future Direction
+- Store investigation history in database
+- Build frontend UI for investigation requests
+- Add more SEO analysis tools (Lighthouse, backlinks, etc.)
+- Implement caching and rate limiting
+- Add authentication for user-specific investigations
 
 ## Getting Help
 
