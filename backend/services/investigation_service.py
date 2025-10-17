@@ -10,7 +10,7 @@ from serpapi import GoogleSearch
 from settings import OPENAI_API_KEY, SERPAPI_API_KEY
 
 
-class OptimizationService:
+class InvestigationService:
     """Service for SEO optimization using OpenAI Agents and SerpAPI"""
 
     def __init__(self):
@@ -21,16 +21,120 @@ class OptimizationService:
     def _setup_agents(self):
         """Initialize OpenAI agents for SEO optimization"""
 
+        # Define tool functions for agents
+        def search_google(query: str, location: str = "United States") -> str:
+            """
+            Search Google for a query and return results.
+
+            Args:
+                query: The search query
+                location: Geographic location for search
+
+            Returns:
+                JSON string with search results
+            """
+            params = {
+                "q": query,
+                "location": location,
+                "api_key": self.serpapi_key,
+            }
+            search = GoogleSearch(params)
+            results = search.get_dict()
+
+            # Return top 5 organic results
+            organic = results.get("organic_results", [])[:5]
+            return json.dumps({
+                "query": query,
+                "results": [
+                    {
+                        "title": r.get("title"),
+                        "link": r.get("link"),
+                        "snippet": r.get("snippet"),
+                        "position": r.get("position"),
+                    }
+                    for r in organic
+                ]
+            }, indent=2)
+
+        def fetch_url_content(url: str) -> str:
+            """
+            Fetch and extract main content from a URL.
+
+            Args:
+                url: The URL to fetch
+
+            Returns:
+                Main text content from the page
+            """
+            import requests
+            from bs4 import BeautifulSoup
+
+            try:
+                response = requests.get(url, timeout=10, headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; SEOBot/1.0)"
+                })
+                response.raise_for_status()
+
+                soup = BeautifulSoup(response.text, 'html.parser')
+
+                # Remove script and style elements
+                for script in soup(["script", "style"]):
+                    script.decompose()
+
+                # Get text
+                text = soup.get_text()
+
+                # Clean up whitespace
+                lines = (line.strip() for line in text.splitlines())
+                chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+                text = ' '.join(chunk for chunk in chunks if chunk)
+
+                # Extract meta data
+                title = soup.find('title')
+                meta_desc = soup.find('meta', attrs={'name': 'description'})
+
+                return json.dumps({
+                    "url": url,
+                    "title": title.string if title else "No title",
+                    "meta_description": meta_desc.get('content') if meta_desc else "No description",
+                    "content": text[:2000],  # First 2000 chars
+                    "content_length": len(text),
+                }, indent=2)
+
+            except Exception as e:
+                return json.dumps({"error": str(e), "url": url})
+
+        # Agent for web investigation
+        self.investigator_agent = Agent(
+            name="Web Investigator",
+            instructions="""
+            You are a web research specialist. Your job is to investigate URLs and gather data.
+
+            Use the available tools to:
+            1. Fetch and analyze the target URL's content
+            2. Search Google for relevant keywords to understand the competitive landscape
+            3. Examine top-ranking competitor pages
+            4. Identify content gaps and opportunities
+
+            Provide a comprehensive report of your findings.
+            """,
+            model="gpt-4o",
+            tools=[search_google, fetch_url_content],
+        )
+
         # Agent for analyzing search results
         self.analysis_agent = Agent(
             name="SEO Analyzer",
             instructions="""
-            You are an expert SEO analyst. Analyze search results and competitor data
+            You are an expert SEO analyst. Analyze the investigation report and data
             to identify optimization opportunities. Focus on:
             - Keyword rankings and gaps
             - Competitor content strategies
-            - Technical SEO factors
+            - Technical SEO factors (titles, meta descriptions, content quality)
             - Content quality indicators
+            - On-page SEO elements
+
+            Provide specific insights based on the data.
             """,
             model="gpt-4o",
         )
@@ -41,13 +145,16 @@ class OptimizationService:
             instructions="""
             You are an expert SEO strategist. Based on analysis data, provide
             specific, actionable optimization recommendations. Include:
-            - On-page SEO improvements
+            - On-page SEO improvements (titles, meta descriptions, headings)
             - Content optimization strategies
             - Technical SEO enhancements
             - Link building opportunities
-            Provide clear, prioritized action items.
+            - Competitive advantages to leverage
+
+            Provide clear, prioritized action items with specific examples.
             """,
             model="gpt-4o",
+            handoffs=[self.analysis_agent],  # Can hand off to analyzer if needed
         )
 
     async def search_google(
@@ -104,7 +211,7 @@ class OptimizationService:
             "search_results": results,
         }
 
-    async def optimize(
+    async def investigate(
         self, url: str, keywords: List[str], location: str, language: str = "en"
     ) -> AsyncIterator[str]:
         """
@@ -143,22 +250,47 @@ class OptimizationService:
                 },
             })
 
-            # Step 3: Run analysis agent
+            # Step 3: Web investigation with agent tools
             yield self._format_sse({
                 "status": "analyzing",
-                "message": "Running AI analysis...",
-                "progress": 60,
+                "message": "Agent investigating target URL and competitors...",
+                "progress": 50,
             })
 
-            analysis_context = f"""
+            investigation_context = f"""
             Target URL: {url}
             Keywords: {', '.join(keywords)}
             Location: {location}
 
+            Please investigate:
+            1. Fetch and analyze the content from the target URL
+            2. Search Google for each keyword: {', '.join(keywords)}
+            3. Fetch content from the top 2-3 competitor URLs
+            4. Compare content quality, structure, and SEO elements
+
+            Provide a detailed investigation report.
+            """
+
+            investigation_result = await Runner.run(
+                agent=self.investigator_agent,
+                input=investigation_context,
+            )
+
+            # Step 4: Run analysis agent
+            yield self._format_sse({
+                "status": "analyzing",
+                "message": "Running SEO analysis...",
+                "progress": 70,
+            })
+
+            analysis_context = f"""
+            Investigation Report:
+            {investigation_result.final_output}
+
             Current Rankings: {json.dumps(analysis_data['rankings'], indent=2)}
             Top Competitors: {json.dumps(analysis_data['competitors'], indent=2)}
 
-            Analyze this SEO data and provide key insights.
+            Analyze this data and provide key SEO insights.
             """
 
             analysis_result = await Runner.run(
@@ -166,15 +298,18 @@ class OptimizationService:
                 input=analysis_context,
             )
 
-            # Step 4: Generate recommendations
+            # Step 5: Generate recommendations
             yield self._format_sse({
                 "status": "optimizing",
                 "message": "Generating optimization recommendations...",
-                "progress": 80,
+                "progress": 85,
             })
 
             optimization_context = f"""
-            Based on this analysis:
+            Investigation findings:
+            {investigation_result.final_output}
+
+            Analysis insights:
             {analysis_result.final_output}
 
             Provide 5-10 specific, actionable SEO recommendations prioritized by impact.
@@ -186,7 +321,7 @@ class OptimizationService:
                 input=optimization_context,
             )
 
-            # Step 5: Final results
+            # Step 6: Final results
             recommendations = self._parse_recommendations(optimization_result.final_output)
 
             yield self._format_sse({

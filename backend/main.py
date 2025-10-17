@@ -1,7 +1,7 @@
 import uvicorn
 from contextlib import asynccontextmanager
 from server import create_server
-from routers import api, user, optimization
+from routers import api, user, investigation
 from models import init_db, close_db
 
 
@@ -23,7 +23,7 @@ app = create_server(lifespan=lifespan)
 # Include API routers
 app.include_router(api.router)
 app.include_router(user.router)
-app.include_router(optimization.router)
+app.include_router(investigation.router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True, host="0.0.0.0", port=8000)

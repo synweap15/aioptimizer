@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from fastapi.responses import StreamingResponse
-from services.optimization_service import OptimizationService
-from schemas.request.optimization import OptimizationRequest
+from services.optimization_service import InvestigationService
+from schemas.request.optimization import InvestigationRequest
 
 router = APIRouter(
     prefix="/optimize",
@@ -14,7 +14,7 @@ router = APIRouter(
     name="Optimize SEO",
     status_code=status.HTTP_200_OK,
 )
-async def optimize_seo(request: OptimizationRequest):
+async def optimize_seo(request: InvestigationRequest):
     """
     Run SEO optimization for a given URL with keywords and location.
 
@@ -38,7 +38,7 @@ async def optimize_seo(request: OptimizationRequest):
     }
     ```
     """
-    service = OptimizationService()
+    service = InvestigationService()
 
     async def event_generator():
         """Generate SSE events from optimization service"""

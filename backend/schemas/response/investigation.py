@@ -4,7 +4,7 @@ from pydantic import Field
 from schemas.base import BaseSchema
 
 
-class OptimizationStatus(BaseSchema):
+class InvestigationStatus(BaseSchema):
     """Schema for optimization status updates (SSE)"""
 
     status: str = Field(..., description="Current status: pending, analyzing, optimizing, completed, failed")
@@ -13,7 +13,7 @@ class OptimizationStatus(BaseSchema):
     data: Optional[Dict[str, Any]] = Field(None, description="Additional data")
 
 
-class OptimizationResult(BaseSchema):
+class InvestigationResult(BaseSchema):
     """Schema for final optimization result"""
 
     id: str = Field(..., description="Optimization task ID")

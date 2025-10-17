@@ -3,7 +3,7 @@ from pydantic import Field, HttpUrl
 from schemas.base import BaseSchema
 
 
-class OptimizationRequest(BaseSchema):
+class InvestigationRequest(BaseSchema):
     """Schema for SEO optimization request"""
 
     url: HttpUrl = Field(..., description="Target URL to optimize")
