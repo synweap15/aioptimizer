@@ -42,3 +42,6 @@ MAX_UPLOAD_SIZE = int(os.getenv("MAX_UPLOAD_SIZE", "10485760"))  # 10MB default
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+# SerpAPI Configuration
+SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY", "")
