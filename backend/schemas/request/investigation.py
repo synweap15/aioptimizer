@@ -4,7 +4,7 @@ from schemas.base import BaseSchema
 
 
 class InvestigationRequest(BaseSchema):
-    """Schema for SEO optimization request"""
+    """Schema for AIO investigation request"""
 
     url: HttpUrl = Field(..., description="Target URL to optimize")
     keywords: List[str] = Field(

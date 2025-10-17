@@ -4,10 +4,10 @@ This document provides guidance for using Claude Code (Anthropic's AI coding ass
 
 ## Project Overview
 
-**AI Optimizer** is an SEO investigation and optimization platform powered by AI agents.
+**AI Optimizer** is an AIO (AI Optimization for search engines) investigation platform powered by AI agents.
 
 ### Purpose
-The platform autonomously investigates websites, researches competitors, and provides actionable SEO recommendations. It uses OpenAI's Agents SDK to enable agents to:
+The platform autonomously investigates websites, researches competitors, and provides actionable optimization recommendations. It uses OpenAI's Agents SDK to enable agents to:
 - Fetch and analyze webpage content
 - Query Google for keyword research
 - Compare competitor strategies
@@ -224,7 +224,7 @@ See InvestigationService for complete agent implementation example.
 
 ## Project-Specific Context
 
-### SEO Investigation Agent System
+### AIO Investigation Agent System
 
 The core feature uses a multi-agent system (`backend/services/investigation_service.py`):
 
@@ -232,11 +232,11 @@ The core feature uses a multi-agent system (`backend/services/investigation_serv
 - `search_google(query, location)` - Query Google via SerpAPI
 - `fetch_url_content(url)` - Fetch and parse webpage content
 
-**2. SEO Analyzer Agent**
+**2. AIO Analyzer Agent**
 - Analyzes investigation data
-- Identifies SEO opportunities
+- Identifies optimization opportunities
 
-**3. SEO Optimizer Agent**
+**3. AIO Optimizer Agent**
 - Generates actionable recommendations
 - Can hand off to Analyzer if needed
 
@@ -245,7 +245,7 @@ The core feature uses a multi-agent system (`backend/services/investigation_serv
 POST /investigate
 {
   "url": "https://example.com",
-  "keywords": ["seo", "optimization"],
+  "keywords": ["search", "optimization"],
   "location": "United States"
 }
 
@@ -511,10 +511,10 @@ docker-compose down                    # Stop services
 ## Project Goals & Assumptions
 
 ### Core Goal
-Build an AI-powered SEO investigation platform where agents autonomously:
+Build an AI-powered search optimization investigation platform where agents autonomously:
 1. Fetch and analyze target website content
 2. Research Google rankings and competitors
-3. Generate actionable SEO recommendations
+3. Generate actionable optimization recommendations
 4. Stream real-time progress to users
 
 ### Key Assumptions
@@ -527,7 +527,7 @@ Build an AI-powered SEO investigation platform where agents autonomously:
 ### Future Direction
 - Store investigation history in database
 - Build frontend UI for investigation requests
-- Add more SEO analysis tools (Lighthouse, backlinks, etc.)
+- Add more optimization analysis tools (Lighthouse, backlinks, etc.)
 - Implement caching and rate limiting
 - Add authentication for user-specific investigations
 

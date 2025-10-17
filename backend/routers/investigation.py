@@ -11,12 +11,12 @@ router = APIRouter(
 
 @router.post(
     "",
-    name="Optimize SEO",
+    name="AIO Investigation",
     status_code=status.HTTP_200_OK,
 )
-async def optimize_seo(request: InvestigationRequest):
+async def investigate_aio(request: InvestigationRequest):
     """
-    Run SEO optimization for a given URL with keywords and location.
+    Run AIO (AI Optimization) investigation for a given URL with keywords and location.
 
     Streams results via Server-Sent Events (SSE).
 
@@ -41,8 +41,8 @@ async def optimize_seo(request: InvestigationRequest):
     service = InvestigationService()
 
     async def event_generator():
-        """Generate SSE events from optimization service"""
-        async for event in service.optimize(
+        """Generate SSE events from investigation service"""
+        async for event in service.investigate(
             url=str(request.url),
             keywords=request.keywords,
             location=request.location,
@@ -63,11 +63,11 @@ async def optimize_seo(request: InvestigationRequest):
 
 @router.get(
     "/health",
-    name="Optimization Service Health",
+    name="Investigation Service Health",
     status_code=status.HTTP_200_OK,
 )
 async def health_check():
-    """Check if optimization service is properly configured"""
+    """Check if investigation service is properly configured"""
     from settings import OPENAI_API_KEY, SERPAPI_API_KEY
 
     return {

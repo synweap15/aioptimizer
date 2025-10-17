@@ -5,7 +5,7 @@ from schemas.base import BaseSchema
 
 
 class InvestigationStatus(BaseSchema):
-    """Schema for optimization status updates (SSE)"""
+    """Schema for investigation status updates (SSE)"""
 
     status: str = Field(..., description="Current status: pending, analyzing, optimizing, completed, failed")
     message: str = Field(..., description="Status message")
@@ -14,9 +14,9 @@ class InvestigationStatus(BaseSchema):
 
 
 class InvestigationResult(BaseSchema):
-    """Schema for final optimization result"""
+    """Schema for final investigation result"""
 
-    id: str = Field(..., description="Optimization task ID")
+    id: str = Field(..., description="Investigation task ID")
     url: str = Field(..., description="Target URL")
     keywords: List[str] = Field(..., description="Target keywords")
     location: str = Field(..., description="Geographic location")
@@ -31,7 +31,7 @@ class InvestigationResult(BaseSchema):
 
     # Optimization recommendations
     recommendations: List[str] = Field(
-        default_factory=list, description="SEO optimization recommendations"
+        default_factory=list, description="AIO optimization recommendations"
     )
 
     # Metadata

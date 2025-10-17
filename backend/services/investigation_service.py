@@ -11,7 +11,7 @@ from settings import OPENAI_API_KEY, SERPAPI_API_KEY
 
 
 class InvestigationService:
-    """Service for SEO optimization using OpenAI Agents and SerpAPI"""
+    """Service for AIO (AI Optimization) investigation using OpenAI Agents and SerpAPI"""
 
     def __init__(self):
         self.openai_api_key = OPENAI_API_KEY
@@ -19,7 +19,7 @@ class InvestigationService:
         self._setup_agents()
 
     def _setup_agents(self):
-        """Initialize OpenAI agents for SEO optimization"""
+        """Initialize OpenAI agents for AIO investigation"""
 
         # Define tool functions for agents
         def search_google(query: str, location: str = "United States") -> str:
@@ -124,15 +124,15 @@ class InvestigationService:
 
         # Agent for analyzing search results
         self.analysis_agent = Agent(
-            name="SEO Analyzer",
+            name="AIO Analyzer",
             instructions="""
-            You are an expert SEO analyst. Analyze the investigation report and data
+            You are an expert AI-powered search optimization analyst. Analyze the investigation report and data
             to identify optimization opportunities. Focus on:
             - Keyword rankings and gaps
             - Competitor content strategies
-            - Technical SEO factors (titles, meta descriptions, content quality)
+            - Technical search optimization factors (titles, meta descriptions, content quality)
             - Content quality indicators
-            - On-page SEO elements
+            - On-page optimization elements
 
             Provide specific insights based on the data.
             """,
@@ -141,13 +141,13 @@ class InvestigationService:
 
         # Agent for generating recommendations
         self.optimization_agent = Agent(
-            name="SEO Optimizer",
+            name="AIO Optimizer",
             instructions="""
-            You are an expert SEO strategist. Based on analysis data, provide
+            You are an expert AI-powered search optimization strategist. Based on analysis data, provide
             specific, actionable optimization recommendations. Include:
-            - On-page SEO improvements (titles, meta descriptions, headings)
+            - On-page improvements (titles, meta descriptions, headings)
             - Content optimization strategies
-            - Technical SEO enhancements
+            - Technical optimization enhancements
             - Link building opportunities
             - Competitive advantages to leverage
 
@@ -215,7 +215,7 @@ class InvestigationService:
         self, url: str, keywords: List[str], location: str, language: str = "en"
     ) -> AsyncIterator[str]:
         """
-        Run SEO optimization process and stream results via SSE.
+        Run AIO investigation process and stream results via SSE.
 
         Yields JSON strings formatted for Server-Sent Events.
         """
@@ -225,7 +225,7 @@ class InvestigationService:
             # Step 1: Initial status
             yield self._format_sse({
                 "status": "pending",
-                "message": "Starting SEO analysis...",
+                "message": "Starting AIO investigation...",
                 "progress": 0,
             })
 
@@ -279,7 +279,7 @@ class InvestigationService:
             # Step 4: Run analysis agent
             yield self._format_sse({
                 "status": "analyzing",
-                "message": "Running SEO analysis...",
+                "message": "Running AIO analysis...",
                 "progress": 70,
             })
 

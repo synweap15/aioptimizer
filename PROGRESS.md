@@ -2,14 +2,14 @@
 
 ## Project Overview
 
-**AI Optimizer** is an SEO investigation and optimization platform that leverages OpenAI's Agents SDK to autonomously analyze websites, research competitors, and provide actionable SEO recommendations.
+**AI Optimizer** is an AIO (AI Optimization for search engines) investigation platform that leverages OpenAI's Agents SDK to autonomously analyze websites, research competitors, and provide actionable optimization recommendations.
 
 ### Core Functionality
 
 The platform takes a target URL, keywords, and location as input, then:
 1. **Investigates** the target website by fetching and analyzing its content
 2. **Researches** Google rankings and competitor websites
-3. **Analyzes** SEO data using AI agents with web research capabilities
+3. **Analyzes** search optimization data using AI agents with web research capabilities
 4. **Generates** prioritized, actionable optimization recommendations
 5. **Streams** real-time progress updates via Server-Sent Events (SSE)
 
@@ -55,12 +55,12 @@ Routers → Services → Models → Database
   - `fetch_url_content()` - Fetch and parse webpage content
 - **Purpose:** Autonomously research target URL and competitors
 
-**2. SEO Analyzer Agent**
+**2. AIO Analyzer Agent**
 - Analyzes investigation data
 - Identifies optimization opportunities
-- Assesses technical SEO factors
+- Assesses technical optimization factors
 
-**3. SEO Optimizer Agent**
+**3. AIO Optimizer Agent**
 - Generates actionable recommendations
 - Prioritizes by impact
 - Can hand off to Analyzer if needed
@@ -81,7 +81,7 @@ Routers → Services → Models → Database
 #### Backend API
 - [x] Health check endpoint (`/api/health`)
 - [x] User management (CRUD with DI pattern)
-- [x] **SEO Investigation endpoint** (`POST /investigate`)
+- [x] **AIO Investigation endpoint** (`POST /investigate`)
   - SSE streaming for real-time updates
   - Multi-agent workflow
   - Web research capabilities
@@ -91,8 +91,8 @@ Routers → Services → Models → Database
 - [x] Web Investigator Agent with tools
   - Google search integration (SerpAPI)
   - Webpage content fetching (requests + BeautifulSoup)
-- [x] SEO Analyzer Agent
-- [x] SEO Optimizer Agent with handoffs
+- [x] AIO Analyzer Agent
+- [x] AIO Optimizer Agent with handoffs
 - [x] Async streaming workflow
 
 #### External Integrations
@@ -121,10 +121,10 @@ Routers → Services → Models → Database
 - [ ] Caching layer (Redis)
 
 #### Agent Improvements
-- [ ] Add more SEO tools (Lighthouse, PageSpeed)
+- [ ] Add more optimization tools (Lighthouse, PageSpeed)
 - [ ] Competitor backlink analysis
 - [ ] Content gap identification
-- [ ] Technical SEO audit agent
+- [ ] Technical optimization audit agent
 
 #### Production Readiness
 - [ ] Error tracking (Sentry)
@@ -162,7 +162,7 @@ Routers → Services → Models → Database
 
 ### Future Tables
 - `investigations` - Investigation records
-- `recommendations` - SEO recommendations
+- `recommendations` - AIO optimization recommendations
 - `keywords` - Tracked keywords
 - `competitors` - Competitor data
 
@@ -181,7 +181,7 @@ Routers → Services → Models → Database
    ↓
 4. Analyzer Agent:
    - Analyze investigation findings
-   - Identify SEO opportunities
+   - Identify optimization opportunities
    - Assess technical factors
    ↓
 5. Optimizer Agent:
@@ -231,7 +231,7 @@ Routers → Services → Models → Database
 ### 2025-01-17
 - ✅ Migrated from Cloudflare Pages to Workers
 - ✅ Added web investigation agents with tools
-- ✅ Renamed Optimization → Investigation (better reflects autonomous research)
+- ✅ Renamed terminology to AIO (AI Optimization for search engines)
 - ✅ Implemented SSE streaming for real-time updates
 - ✅ Added SerpAPI, requests, BeautifulSoup4 dependencies
 
