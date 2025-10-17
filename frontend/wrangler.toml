@@ -1,10 +1,9 @@
-# Cloudflare Pages Configuration
-# This file is used for local development and CLI deployments only
-# Production builds are configured in the Cloudflare Dashboard
-
 name = "aioptimizer"
-compatibility_date = "2024-01-01"
-pages_build_output_dir = ".next"
-
-# Account ID for Cloudflare
+main = "src/index.js"
+compatibility_date = "2025-01-17"
 account_id = "d371c76d7e486fbae757ae73a6349bc6"
+
+# Static assets configuration for Next.js
+[assets]
+directory = ".next/static"
+binding = "ASSETS"
