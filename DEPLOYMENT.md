@@ -1,15 +1,17 @@
 # Deployment Guide
 
-## Cloudflare Pages Setup for Frontend
+## Important: Cloudflare Pages → Workers Migration (2025)
 
-### Initial Setup (Already Completed)
+**Cloudflare is transitioning from Pages to Workers for static sites.** Workers provide broader features including Durable Objects, Cron Triggers, and better observability while maintaining the same pricing as Pages.
 
-The Cloudflare Pages project has been created and configured:
+### Current Setup
 
-1. **Project Created**: `aioptimizer`
-2. **Production URL**: https://aioptimizer.pages.dev/
-3. **Account ID**: `d371c76d7e486fbae757ae73a6349bc6`
-4. **Account**: Shamdog+cloudflare@gmail.com's Account
+- **Project**: `aioptimizer` (migrated to Workers)
+- **Production URL**: https://aioptimizer.pages.dev/ (still accessible)
+- **Account ID**: `d371c76d7e486fbae757ae73a6349bc6`
+- **Account**: Shamdog+cloudflare@gmail.com's Account
+
+## Cloudflare Workers Deployment for Frontend
 
 ### Connect to GitHub (Manual Steps Required)
 
@@ -24,10 +26,11 @@ To enable automatic deployments from GitHub:
 7. Configure build settings:
    - **Production branch**: `master`
    - **Build command**: `npm run build`
-   - **Build output directory**: `.next`
+   - **Deploy command**: `npx wrangler deploy` ⚠️ **REQUIRED**
    - **Root directory**: `frontend`
-   - **Environment variables** (optional):
-     - `NEXT_PUBLIC_API_URL`: Your production API URL
+   - **Environment variables**:
+     - `NODE_VERSION`: `24`
+     - `NEXT_PUBLIC_API_URL`: Your production API URL (optional)
 
 ### How It Works
 
@@ -55,8 +58,8 @@ npm install
 # Build the application
 npm run build
 
-# Deploy to Cloudflare Pages
-CLOUDFLARE_ACCOUNT_ID=d371c76d7e486fbae757ae73a6349bc6 wrangler pages deploy .next --project-name=aioptimizer
+# Deploy to Cloudflare Workers (NOT wrangler pages deploy)
+CLOUDFLARE_ACCOUNT_ID=d371c76d7e486fbae757ae73a6349bc6 wrangler deploy
 ```
 
 ### Environment Variables
@@ -66,23 +69,39 @@ Set environment variables in Cloudflare Dashboard:
 1. Go to **Workers & Pages** > **aioptimizer** > **Settings** > **Environment variables**
 2. Add variables for production:
    - `NEXT_PUBLIC_API_URL`: Production backend API URL
+   - `NODE_VERSION`: `24`
 3. Add variables for preview (optional)
 
-### Build Configuration
+### Workers Configuration
 
-The `wrangler.toml` file contains:
+The `wrangler.toml` file contains Workers configuration (NOT Pages):
 
 ```toml
 name = "aioptimizer"
-compatibility_date = "2024-01-01"
-pages_build_output_dir = ".next"
+main = "src/index.js"
+compatibility_date = "2025-01-17"
 account_id = "d371c76d7e486fbae757ae73a6349bc6"
 
-[build]
-command = "npm run build"
+# Static assets configuration for Next.js
+[assets]
+directory = ".next/static"
+binding = "ASSETS"
 ```
 
+**Key Differences from Pages:**
+- Uses `main` field to specify Worker entry point
+- Uses `[assets]` section instead of `pages_build_output_dir`
+- Deploy command is `wrangler deploy` (NOT `wrangler pages deploy`)
+- Provides access to Workers features (Durable Objects, Cron, etc.)
+
 ### Troubleshooting
+
+#### "Workers-specific command in Pages project" Error
+
+This error occurs when Cloudflare tries to run `wrangler deploy` on a Pages project. **Solution:**
+- Ensure the project is configured as a Worker (not Pages)
+- The deploy command MUST be `npx wrangler deploy`
+- Check that `wrangler.toml` has `main` field (Worker) not `pages_build_output_dir` (Pages)
 
 #### Build Failures
 
@@ -91,8 +110,9 @@ Check the build logs in Cloudflare Dashboard:
 2. Review the error messages
 
 Common issues:
+- **Missing deploy command**: Deploy command is REQUIRED - set to `npx wrangler deploy`
 - **Missing environment variables**: Add them in Settings
-- **Node.js version**: Cloudflare uses Node 18 by default; add `NODE_VERSION=24` env var if needed
+- **Node.js version**: Must use Node 24; add `NODE_VERSION=24` env var
 - **Build timeout**: Increase timeout in settings or optimize build
 
 #### Deployment Not Triggering
@@ -100,6 +120,7 @@ Common issues:
 1. Verify GitHub integration is active
 2. Check that you pushed to the `master` branch
 3. Ensure the repository webhook is configured in GitHub settings
+4. Verify deploy command is set to `npx wrangler deploy`
 
 ### Custom Domains
 

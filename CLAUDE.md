@@ -350,13 +350,56 @@ When Claude generates code, always check:
 4. **Error Handling**: Proper HTTP exceptions
 5. **Security**: No plain text passwords, proper validation
 
+## Deployment (Cloudflare Workers)
+
+### Important: Pages → Workers Migration (2025)
+
+Cloudflare has transitioned from Pages to Workers for static sites. The project uses **Cloudflare Workers** with static assets.
+
+**Key Configuration:**
+
+```toml
+# frontend/wrangler.toml
+name = "aioptimizer"
+main = "src/index.js"
+compatibility_date = "2025-01-17"
+account_id = "d371c76d7e486fbae757ae73a6349bc6"
+
+[assets]
+directory = ".next/static"
+binding = "ASSETS"
+```
+
+**Deploy Command (Cloudflare Dashboard):**
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy` ⚠️ **REQUIRED** (NOT `wrangler pages deploy`)
+- Root directory: `frontend`
+- Environment: `NODE_VERSION=24`
+
+**Manual Deployment:**
+```bash
+cd frontend
+npm run build
+CLOUDFLARE_ACCOUNT_ID=d371c76d7e486fbae757ae73a6349bc6 wrangler deploy
+```
+
+**Differences from Pages:**
+- Uses `main` field (Worker entry point) instead of `pages_build_output_dir`
+- Uses `[assets]` section for static files
+- Deploy with `wrangler deploy` (NOT `wrangler pages deploy`)
+- Access to Workers features: Durable Objects, Cron Triggers, etc.
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete deployment guide.
+
 ## Resources
 
 - **Project README**: See [README.md](./README.md)
+- **Deployment Guide**: See [DEPLOYMENT.md](./DEPLOYMENT.md)
 - **OpenAI Agents**: See [AGENTS.md](./AGENTS.md)
 - **FastAPI Docs**: https://fastapi.tiangolo.com/
 - **SQLAlchemy 2.0**: https://docs.sqlalchemy.org/en/20/
 - **Pydantic v2**: https://docs.pydantic.dev/2.0/
+- **Cloudflare Workers**: https://developers.cloudflare.com/workers/
 
 ## Quick Reference Commands
 
@@ -371,6 +414,10 @@ poetry run black .                      # Format code
 npm install <package>                   # Add dependency
 npm run dev                            # Start dev server
 npm run build                          # Build for production
+
+# Cloudflare Deployment (use Node v24)
+nvm use v24
+wrangler deploy                        # Deploy to Workers
 
 # Git
 git add .                              # Stage changes
