@@ -213,6 +213,59 @@ SECRET_KEY=your-secret-key
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
+## Deployment
+
+### Frontend - Cloudflare Pages
+
+The frontend is automatically deployed to Cloudflare Pages via GitHub integration on every push to `master`.
+
+**Production URL**: https://aioptimizer.pages.dev/
+
+#### Cloudflare Pages Setup
+
+Cloudflare Pages is configured to:
+- Watch the GitHub repository: `synweap15/aioptimizer`
+- Production branch: `master`
+- Build command: `npm run build`
+- Build output directory: `.next`
+- Root directory: `frontend`
+
+#### Manual Deployment
+
+```bash
+# Switch to Node.js v24
+nvm use v24
+
+# Build and deploy
+cd frontend
+npm run build
+CLOUDFLARE_ACCOUNT_ID=d371c76d7e486fbae757ae73a6349bc6 wrangler pages deploy .next --project-name=aioptimizer
+```
+
+#### Cloudflare Account
+
+- Account ID: `d371c76d7e486fbae757ae73a6349bc6`
+- Account: Shamdog+cloudflare@gmail.com's Account
+- Project: aioptimizer
+
+### Backend - Docker/VPS Deployment
+
+Backend can be deployed using Docker:
+
+```bash
+# Production deployment
+docker-compose -f docker-compose.production.yml up -d
+```
+
+Or manually on a VPS:
+
+```bash
+cd backend
+poetry install --no-dev
+poetry run alembic upgrade head
+poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+```
+
 ## Resources
 
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
