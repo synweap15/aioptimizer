@@ -1,14 +1,10 @@
+# Cloudflare Pages Configuration
+# This file is used for local development and CLI deployments only
+# Production builds are configured in the Cloudflare Dashboard
+
 name = "aioptimizer"
 compatibility_date = "2024-01-01"
-
 pages_build_output_dir = ".next"
-
-[env.production]
-name = "aioptimizer"
 
 # Account ID for Cloudflare
 account_id = "d371c76d7e486fbae757ae73a6349bc6"
-
-# Next.js specific configuration
-[build]
-command = "npm run build"
