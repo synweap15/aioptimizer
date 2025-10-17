@@ -1,5 +1,7 @@
+from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from settings import (
     RELEASE_STAGE,
     FRONTEND_URL,
@@ -8,9 +10,12 @@ from settings import (
 )
 
 
-def create_server() -> FastAPI:
+def create_server(lifespan: Optional[asynccontextmanager] = None) -> FastAPI:
     """
     Create and configure the FastAPI application.
+
+    Args:
+        lifespan: Optional async context manager for startup/shutdown events
 
     Returns:
         FastAPI: Configured FastAPI application instance
@@ -25,6 +30,7 @@ def create_server() -> FastAPI:
         debug=RELEASE_STAGE == "local",
         docs_url=docs_url,
         redoc_url=redoc_url,
+        lifespan=lifespan,
     )
 
     # Configure CORS
