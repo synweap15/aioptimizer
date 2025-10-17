@@ -1,0 +1,142 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v4.0.0-alpha.8"
+    hooks:
+      - id: prettier
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v5.0.0"
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
+# Modified from https://github.com/ydataai/pandas-profiling/commit/5089a302bf6e6bc4f702014c30ab9c6962ebad3d
+
+repos:
+-   repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+    - id: black
+      language_version: python3.10
+      exclude: migrations/.*
+-   repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.1
+    hooks:
+    - id: nbqa-black
+    - id: nbqa-isort
+    - id: nbqa-pyupgrade
+      args: [ --nbqa-mutate, --py310-plus ]
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: ['--py310-plus','--exit-zero-even-if-changed']
+-   repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        files: '.*'
+        args: [ --profile=black, --project=scripts ]
+        exclude: migrations/.*
+-   repo: https://github.com/PyCQA/flake8
+    rev: "7.0.0"
+    hooks:
+    -   id: flake8
+        args: [ "--ignore=E501,SFS301,T001,SIM106,SIM113,E203,W503,SIM910,E712,E711" ]
+        additional_dependencies:
+          - flake8-comprehensions
+          - flake8-sfs
+          - flake8-simplify
+          - flake8-eradicate
+          - flake8-print
+        exclude: (migrations/.*|manage\.py|tests/.*)
+-   repo: https://github.com/asottile/blacken-docs
+    rev: 1.16.0
+    hooks:
+    -   id: blacken-docs
+        exclude: ^tests/.*\.md$
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: rst-backticks
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v1.8.0'
+    hooks:
+    -   id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-python-dateutil
+          - types-PyYAML
+          - types-setuptools
+          - types-cachetools
+          - types-geoip2
+          - types-pytz
+          - types-redis
+          - types-PyMySQL
+        exclude: (manage\.py|tests/.*)
+# disable tryceratops due to python 3.10 incompatibility
+#-   repo: https://github.com/sbrugman/tryceratops
+#    rev: v0.6.0
+#    hooks:
+#      - id: tryceratops
+#        args: ["-i", "TC003", "-i", "TC401", "-i", "TC101", "--autofix"]
+-   repo: https://github.com/pre-commit/pre-commit-hooks.git
+    rev: v4.5.0
+    hooks:
+    # -   id: check-added-large-files
+    -   id: check-ast
+    -   id: check-byte-order-marker
+    -   id: check-builtin-literals
+    -   id: check-case-conflict
+    -   id: check-executables-have-shebangs
+    -   id: check-json
+    -   id: check-shebang-scripts-are-executable
+        exclude: ^tests/compliance_form/minimal_form_fill\.py$
+    -   id: pretty-format-json
+        args:
+          - "--autofix"
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: check-toml
+    -   id: check-vcs-permalinks
+    -   id: check-xml
+    -   id: check-yaml
+    -   id: debug-statements
+    -   id: destroyed-symlinks
+    -   id: detect-private-key
+    -   id: end-of-file-fixer
+    -   id: file-contents-sorter
+    -   id: fix-byte-order-marker
+    -   id: forbid-new-submodules
+    -   id: mixed-line-ending
+    -   id: name-tests-test
+        exclude: ^tests/(e2e_browser/(pages|conftest\.py|__init__\.py)|pytest_aliases\.py|services/(debug_.*\.py|test_jobadder_real_submission\.py|test_jobadder_worker_e2e\.py)|compliance_form/minimal_form_fill\.py)
+    -   id: sort-simple-yaml
+    -   id: trailing-whitespace
+#-   repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+#    rev: v1.3.1
+#    hooks:
+#    -   id: python-safety-dependencies-check
+#        args: ["--ignore=44717,44716,44715,53868,53869,58755,59062,59234,59231,60223,60224,60225,61489,61601,61893,62123,52548,62156,62308,62452,62451", "--disable-telemetry"]
+#        files: pyproject.toml
+- repo: https://github.com/netromdk/vermin
+  rev: 'v1.6.0'
+  hooks:
+    - id: vermin
+      args: ['-t=3.10-', '--violations']
+-   repo: https://github.com/python-poetry/poetry
+    rev: 1.7.0
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+        args: ["--no-update"]
+      - id: poetry-export
+        args: ["--without", "dev", "--without-hashes", "--format", "requirements.txt", "--output", "requirements.txt"]
+      - id: poetry-export
+        args: [ "--only", "dev", "--without-hashes", "--format", "requirements.txt", "--output", "requirements_dev.txt" ]
+
+ci:
+  autoupdate_commit_msg: 'ci: pre-commit-config update'
+  autofix_prs: false
+  autofix_commit_msg: 'ci: pre-commit auto fixes'
